@@ -1,0 +1,73 @@
+# cluster.yaml
+# A cluster with two managed nodegroup
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: day6-cluster
+  region: ap-northeast-2
+  version: "1.27"
+  tags:
+    karpenter.sh/discovery: day6-cluster
+
+vpc:
+  subnets:
+    private:
+      ap-northeast-2a: { id: subnet-0cffe49a256694100 }
+      ap-northeast-2b: { id: subnet-0d5d437936d1aa18b }
+      ap-northeast-2c: { id: subnet-09b0375f9d0554351 }
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+  - metadata:
+      name: karpenter
+      namespace: karpenter
+    roleName: day6-cluster-karpenter
+    attachPolicyARNs:
+    - arn:aws:iam::532003114460:policy/KarpenterControllerPolicy-day6-cluster
+    roleOnly: true
+
+iamIdentityMappings:
+- arn: "arn:aws:iam::532003114460:role/KarpenterNodeRole-day6-cluster"
+  username: system:node:{{EC2PrivateDNSName}}
+  groups:
+  - system:bootstrappers
+  - system:nodes
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
+
+managedNodeGroups:
+  - name: karpenter-ng-1
+    instanceType: c5.large
+    minSize: 2
+    maxSize: 20
+    desiredCapacity: 3
+    disableIMDSv1: false
+    privateNetworking: true
+    volumeSize: 20
+    ssh:
+      allow: false
+    taints:
+    - key: karpenter.node
+      value: "true"
+      effect: NoSchedule
+    iam:
+      withAddonPolicies:
+        externalDNS: true
+        certManager: true
+  - name: node-ng-2
+    instanceType: c5.large
+    minSize: 2
+    maxSize: 20
+    desiredCapacity: 3
+    disableIMDSv1: false
+    privateNetworking: true
+    volumeSize: 20
+    ssh:
+      allow: false
+    iam:
+      withAddonPolicies:
+        externalDNS: true
+        certManager: true
