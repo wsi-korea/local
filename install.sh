@@ -10,12 +10,20 @@ chmod +x ./kubectl
 sudo mv ./kubectl /bin/kubectl
 
 
+#kubernetes bash-completion
+source /usr/share/bash-completion/bash_completion
+echo 'source <(kubectl completion bash)' >>~/.bashrc
+echo 'alias k=kubectl' >>~/.bashrc
+echo 'complete -o default -F __start_kubectl k' >>~/.bashrc
+exec bash
+
 #eksctl install version 0.148.0 ( k8s 1.26~1.27 )
 ARCH=amd64
 PLATFORM=$(uname -s)_$ARCH
-curl -sLO "https://github.com/eksctl-io/eksctl/releases/download/v0.148.0/eksctl_Linux_amd64.tar.gz"
+curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
 tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
-sudo mv /tmp/eksctl /bin/
+sudo mv /tmp/eksctl /usr/local/bin
 
 #helm install version v3.12.0 ( k8s 1.26 ~ 1.27 )
 wget https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz
