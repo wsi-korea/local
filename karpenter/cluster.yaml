@@ -4,7 +4,7 @@ kind: ClusterConfig
 metadata:
   name: skills-cluster
   version: "1.27"
-  region: ap-norhteast-2
+  region: ap-northeast-2
   tags:
     karpenter.sh/discovery: skills-cluster
 
@@ -18,23 +18,21 @@ karpenter:
 vpc:
   subnets:
     private:
-      private-a: { id: subnet-08e06b91cadb988a8	}
-      private-b: { id: subnet-08451a4b1844c14f3 }
-      private-c: { id: subnet-0ff12bd32ed263ede }
+      private-a: { id: subnet-01c5332c1257853da	}
+      private-b: { id: subnet-0842cbe6861ccc41a }
+      private-c: { id: subnet-123 }
 
 iamIdentityMappings:
   - arn: arn:aws:iam::532003114460:role/poweruser
     groups:
       - system:masters
-    username: admin01
+    username: admin
     noDuplicateARNs: true # prevents shadowing of ARNs
 
 cloudWatch:
   clusterLogging:
     enableTypes: ["*"]
 
-privateCluster:
-  enabled: true
 
 iam:
   withOIDC: true
@@ -109,10 +107,6 @@ managedNodeGroups:
     privateNetworking: true
     volumeType: gp2
     volumeEncrypted: true
-    taints:
-      - key: kubernetes.io/metadata.name
-        value: "kube-system"
-        effect: NoSchedule
     subnets:
       - private-a
       - private-b
@@ -148,3 +142,19 @@ managedNodeGroups:
         imageBuilder: true
         externalDNS: true
         certManager: true
+
+
+
+
+
+
+
+
+
+
+
+
+      #    taints:
+      #      - key: kubernetes.io/metadata.name
+      #        value: "kube-system"
+      #        effect: NoSchedule
